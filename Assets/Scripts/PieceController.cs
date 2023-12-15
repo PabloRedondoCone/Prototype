@@ -13,8 +13,9 @@ public class PieceController : MonoBehaviour
     public List<HangingPiece> blockPrefabs = new List<HangingPiece>();
     public List<HangingPiece> roofPrefabs = new List<HangingPiece>();
     public GameObject emptyPrefab;
-    public int buildingMaxHeight = 3;
-    public int buildingMinHeight = 3;
+    public Monument monumentPrefab;
+    public int buildingMaxHeight = 2;
+    public int buildingMinHeight = 4;
 
     private HangingPiece _newHangingPiece;
 
@@ -66,6 +67,11 @@ public class PieceController : MonoBehaviour
         for (int i = 0; i < _generatedPieces.Count; i++)
         {
             _generatedPieces[i].transform.SetParent(newAsset.transform);
+
+            Vector3 _newPosition = _generatedPieces[i].transform.localPosition;
+            _newPosition.x += newAsset.transform.position.x - _generatedPieces[0].transform.position.x;
+            _newPosition.y += newAsset.transform.position.y - _generatedPieces[0].transform.position.y;
+            _generatedPieces[i].transform.localPosition = _newPosition;
         }
 
         PrefabUtility.SaveAsPrefabAsset(newAsset, "Assets/Resources/StoredBuildingColliders.prefab");
@@ -93,14 +99,79 @@ public class PieceController : MonoBehaviour
         yield return new WaitForFixedUpdate();
         PrefabUtility.SaveAsPrefabAsset(newAsset, "Assets/Resources/StoredBuilding.prefab");
 
+        newAsset = CreateBuildingMonument(newAsset);
+
         yield return new WaitForFixedUpdate();
 
-        Events.OnBuildingFinished(Instantiate(Resources.Load<GameObject>("StoredBuilding")));
+        PrefabUtility.SaveAsPrefabAsset(newAsset, "Assets/Resources/StoredBuildingMonument.prefab");
+
+        yield return new WaitForFixedUpdate();
+
+        if (CityController.instance.cuadricula)
+        {
+            Events.OnBuildingFinished(Instantiate(Resources.Load<GameObject>("StoredBuilding")));
+        }
+        else
+        {
+            Events.OnMonumentFinished(Instantiate(Resources.Load<Monument>("StoredBuildingMonument")));
+        }
 
         Destroy(newAsset);
 
         ResetBuilding();
         StartCoroutine(NextPiece(0.1f));
+    }
+
+    private GameObject CreateBuildingMonument(GameObject newAsset)
+    {
+        Monument monument = Instantiate(monumentPrefab);
+        newAsset.transform.SetParent(monument.transform);
+
+        monument.SetGroundSize(GetTotalBuildingSize(newAsset));
+
+        return monument.gameObject;
+    }
+
+    private Vector2 GetTotalBuildingSize(GameObject newAsset)
+    {
+        Transform[] allTransforms = newAsset.GetComponentsInChildren<Transform>();
+
+        List<Transform> blocks = new List<Transform>();
+
+        for (int i = 0; i < allTransforms.Length; i++)
+        {
+            if (allTransforms[i].name.Contains("Block") || allTransforms[i].name.Contains("Roof"))
+            {
+                blocks.Add(allTransforms[i]);
+            }
+        }
+
+        float minimumX = 0;
+        float maximumX = 0;
+        float minimumZ = 0;
+        float maximumZ = 0;
+
+        for (int i = 0; i < blocks.Count; i++)
+        {
+            if (minimumX > blocks[i].position.x)
+            {
+                minimumX = blocks[i].position.x;
+            }
+            if (maximumX < blocks[i].position.x)
+            {
+                maximumX = blocks[i].position.x;
+            }
+            if (minimumZ > blocks[i].position.z)
+            {
+                minimumZ = blocks[i].position.z;
+            }
+            if (maximumZ < blocks[i].position.z)
+            {
+                maximumZ = blocks[i].position.z;
+            }
+        }
+
+        return new Vector2(maximumX - minimumX, maximumZ - minimumZ);
     }
 
     #endregion

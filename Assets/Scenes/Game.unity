@@ -984,7 +984,9 @@ MonoBehaviour:
   - {fileID: 4986222925622276497, guid: 6658f3495d216ba48a7feef7c2097532, type: 3}
   emptyPrefab: {fileID: 1745265785248865806, guid: 67ab8772683801847b93fc34e5042ace,
     type: 3}
-  buildingMaxHeight: 11
+  monumentPrefab: {fileID: 4372323361544637164, guid: d576fcebba6ecb54791aa88d1ef15130,
+    type: 3}
+  buildingMaxHeight: 2
   buildingMinHeight: 2
 --- !u!114 &658168920
 MonoBehaviour:
@@ -1279,6 +1281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cda7bee00596595428a1d2d1a9b819a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cuadricula: 1
   buildingPositions:
   - {fileID: 49857902}
 --- !u!1 &1544439305
