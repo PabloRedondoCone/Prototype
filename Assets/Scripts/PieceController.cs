@@ -68,9 +68,15 @@ public class PieceController : MonoBehaviour
         {
             _generatedPieces[i].transform.SetParent(newAsset.transform);
 
+        }
+
+        float xDistanceFromCenter = _generatedPieces[0].transform.position.x;
+        float zDistanceFromCenter = _generatedPieces[0].transform.position.z;
+        for (int i = 0; i < _generatedPieces.Count; i++)
+        {
             Vector3 _newPosition = _generatedPieces[i].transform.localPosition;
-            _newPosition.x += newAsset.transform.position.x - _generatedPieces[0].transform.position.x;
-            _newPosition.y += newAsset.transform.position.y - _generatedPieces[0].transform.position.y;
+            _newPosition.x += newAsset.transform.position.x - xDistanceFromCenter;
+            _newPosition.z += newAsset.transform.position.z - zDistanceFromCenter;
             _generatedPieces[i].transform.localPosition = _newPosition;
         }
 
