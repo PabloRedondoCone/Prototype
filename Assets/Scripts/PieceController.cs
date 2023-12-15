@@ -21,18 +21,20 @@ public class PieceController : MonoBehaviour
     private int _currentHeight;
     private int _currentMaxHeight;
     private List<GameObject> _generatedPieces = new List<GameObject>();
+    private bool _spawningNewPiece;
+    private bool _pieceAvailable;
 
     private void Awake()
     {
         SetCurrentMaxHeight();
-        NextPiece();
+        StartCoroutine(NextPiece(0));
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) && !_pieceAvailable)
         {
-            NextPiece();
+            StartCoroutine(NextPiece(0));
         }
     }
 
@@ -55,51 +57,10 @@ public class PieceController : MonoBehaviour
         }
     }
 
-    #endregion
-
-    public void NextPiece()
+    public void FinishBulding(float waitTime)
     {
-        if (_currentHeight >= _currentMaxHeight)
-        {
-            FinishBulding();
-            return;
-        }
+        if (waitTime != 0) { return; }
 
-
-        if (_currentHeight == _currentMaxHeight - 1)
-        {
-            _newHangingPiece = Instantiate(roofPrefabs[Random.Range(0, roofPrefabs.Count)]);
-        }
-        else
-        {
-            _newHangingPiece = Instantiate(blockPrefabs[Random.Range(0, blockPrefabs.Count)]);
-        }
-
-        _newHangingPiece.hingeJoint.connectedBody = joint;
-        _newHangingPiece.transform.position = hangingPosition.position;
-        _newHangingPiece.transform.localRotation = hangingPosition.rotation;
-
-        _currentHeight++;
-    }
-
-    //public void LaunchPiece()
-    //{
-    //    Debug.Log("Launched");
-    //    _newHangingPiece.hingeJoint.gameObject.SetActive(false);
-    //}
-    public void LaunchPiece(InputAction.CallbackContext context)
-    {
-        if (context.started)
-        {
-            Debug.Log("Launched");
-            _newHangingPiece.hingeJoint.breakTorque = 0;
-            Events.OnLaunchPiece?.Invoke(_newHangingPiece.GetComponentInChildren<MeshRenderer>().bounds.size.y);
-            _generatedPieces.Add(_newHangingPiece.gameObject);
-        }
-    }
-
-    public void FinishBulding()
-    {
         GameObject newAsset = Instantiate(emptyPrefab);
 
         for (int i = 0; i < _generatedPieces.Count; i++)
@@ -127,10 +88,6 @@ public class PieceController : MonoBehaviour
         StartCoroutine(SaveNoColliderAsset(newAsset));
     }
 
-    /// <summary>
-    /// Destroy Component Is Not Instantaneous
-    /// </summary>
-    /// <returns></returns>
     private IEnumerator SaveNoColliderAsset(GameObject newAsset)
     {
         yield return new WaitForFixedUpdate();
@@ -143,6 +100,77 @@ public class PieceController : MonoBehaviour
         Destroy(newAsset);
 
         ResetBuilding();
+        StartCoroutine(NextPiece(0.1f));
     }
+
+    #endregion
+
+    #region Pieces-related
+
+    public void LaunchPiece(InputAction.CallbackContext context)
+    {
+        if (context.started && !_spawningNewPiece)
+        {
+            _newHangingPiece.hingeJoint.breakTorque = 0;
+            Events.OnLaunchPiece?.Invoke(_newHangingPiece.GetComponentInChildren<MeshRenderer>().bounds.size.y);
+            _generatedPieces.Add(_newHangingPiece.gameObject);
+            _pieceAvailable = false;
+
+            StartCoroutine(NextPiece(0.4f));
+        }
+    }
+
+    /// <summary>
+    /// Destroy Component Is Not Instantaneous
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator NextPiece(float waitTime)
+    {
+        if (!_spawningNewPiece)
+        {
+            _spawningNewPiece = true;
+
+            float timer = waitTime;
+            while (timer > 0)
+            {
+                timer -= Time.deltaTime;
+                yield return null;
+            }
+
+            if (_currentHeight >= _currentMaxHeight)
+            {
+                FinishBulding(waitTime);
+                _spawningNewPiece = false;
+                yield return null;
+            }
+            else
+            {
+
+                if (_currentHeight == _currentMaxHeight - 1)
+                {
+                    _newHangingPiece = Instantiate(roofPrefabs[Random.Range(0, roofPrefabs.Count)]);
+                }
+                else
+                {
+                    _newHangingPiece = Instantiate(blockPrefabs[Random.Range(0, blockPrefabs.Count)]);
+                }
+
+                _newHangingPiece.hingeJoint.connectedBody = joint;
+                _newHangingPiece.transform.position = hangingPosition.position;
+                _newHangingPiece.transform.localRotation = hangingPosition.rotation;
+
+                _currentHeight++;
+
+                _pieceAvailable = true;
+
+                yield return StartCoroutine(_newHangingPiece.WaitForAnimation());
+
+                _spawningNewPiece = false;
+            }
+
+        }
+    }
+
+    #endregion
 
 }

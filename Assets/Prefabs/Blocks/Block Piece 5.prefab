@@ -129,6 +129,7 @@ GameObject:
   - component: {fileID: 7362697266562722279}
   - component: {fileID: 5437015065407010347}
   - component: {fileID: 3953838571534771926}
+  - component: {fileID: -6189343013727140041}
   m_Layer: 0
   m_Name: Block Piece 5
   m_TagString: Untagged
@@ -165,6 +166,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hingeJoint: {fileID: 5437015065407010347}
+  clip: {fileID: 7400000, guid: 56519749e02f5bb43b022d0232c00676, type: 2}
 --- !u!54 &7362697266562722279
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -202,7 +204,7 @@ HingeJoint:
   m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 3, z: 0}
-  m_Axis: {x: 1, y: 0, z: 0}
+  m_Axis: {x: 0, y: 0, z: 1}
   m_AutoConfigureConnectedAnchor: 0
   m_ConnectedAnchor: {x: 0, y: 0, z: 0}
   serializedVersion: 2
@@ -229,7 +231,7 @@ HingeJoint:
   m_BreakTorque: Infinity
   m_EnableCollision: 0
   m_EnablePreprocessing: 1
-  m_MassScale: 0.5
+  m_MassScale: 1
   m_ConnectedMassScale: 1
 --- !u!65 &3953838571534771926
 BoxCollider:
@@ -252,3 +254,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 0.6280238, z: 0.99767506}
   m_Center: {x: 0, y: 0.013949126, z: 0.03603536}
+--- !u!95 &-6189343013727140041
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7980613840068811862}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 705f80a4497486b47b1e43cca458a92c, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
